@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (C) 2020 Technology Innovation Institute. All rights reserved.
+ *   Copyright (C) 2012 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,47 +31,29 @@
  *
  ****************************************************************************/
 
-/****************************************************************************
- * Included Files
- ****************************************************************************/
+#include <px4_arch/io_timer_hw_description.h>
 
-#include <nuttx/config.h>
+constexpr io_timers_t io_timers[MAX_IO_TIMERS] = {
+	initIOTimer(Timer::Timer1, DMA{DMA::Index2, DMA::Stream5, DMA::Channel6}),
+	initIOTimer(Timer::Timer4, DMA{DMA::Index1, DMA::Stream6, DMA::Channel2}),
+};
 
-#include <stdbool.h>
-
-#include "board_config.h"
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-#if defined(GPIO_OTGFS_VBUS)
-int board_read_VBUS_state(void)
+static inline constexpr timer_io_channels_t initIOTimerChannelPulldown(const io_timers_t io_timers_conf[MAX_IO_TIMERS],
+		Timer::TimerChannel timer, GPIO::GPIOPin pin)
 {
-	return (px4_arch_gpioread(GPIO_OTGFS_VBUS) ? 0 : 1);
-	// return (1);
-}
-#endif
-
-int boardctrl_read_VBUS_state(void)
-{
-	return board_read_VBUS_state();
+	timer_io_channels_t ret = initIOTimerChannel(io_timers_conf, timer, pin);
+	ret.gpio_out |= GPIO_OUTPUT_CLEAR | GPIO_PULLDOWN;
+	return ret;
 }
 
-void boardctrl_indicate_external_lockout_state(bool enable)
-{
-#if defined(GPIO_nARMED)
-	px4_arch_configgpio((enable) ? GPIO_nARMED : GPIO_nARMED_INIT);
-#else
-	UNUSED(enable);
-#endif
-}
+constexpr timer_io_channels_t timer_io_channels[MAX_TIMER_IO_CHANNELS] = {
+	initIOTimerChannelPulldown(io_timers, {Timer::Timer1, Timer::Channel4}, {GPIO::PortE, GPIO::Pin14}),
+	initIOTimerChannelPulldown(io_timers, {Timer::Timer1, Timer::Channel3}, {GPIO::PortE, GPIO::Pin13}),
+	initIOTimerChannelPulldown(io_timers, {Timer::Timer1, Timer::Channel2}, {GPIO::PortE, GPIO::Pin11}),
+	initIOTimerChannelPulldown(io_timers, {Timer::Timer1, Timer::Channel1}, {GPIO::PortE, GPIO::Pin9}),
+	initIOTimerChannelPulldown(io_timers, {Timer::Timer4, Timer::Channel2}, {GPIO::PortD, GPIO::Pin13}),
+	initIOTimerChannelPulldown(io_timers, {Timer::Timer4, Timer::Channel3}, {GPIO::PortD, GPIO::Pin14}),
+};
 
-bool boardctrl_get_external_lockout_state(void)
-{
-#if defined(GPIO_nARMED)
-	return px4_arch_gpioread(GPIO_nARMED);
-#else
-	return false;
-#endif
-}
+constexpr io_timers_channel_mapping_t io_timers_channel_mapping =
+	initIOTimerChannelMapping(io_timers, timer_io_channels);

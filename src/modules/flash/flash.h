@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (C) 2020 Technology Innovation Institute. All rights reserved.
+ *   Copyright (c) 2018 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,47 +31,59 @@
  *
  ****************************************************************************/
 
-/****************************************************************************
- * Included Files
- ****************************************************************************/
+#pragma once
+#include <mt25ql.c>
+#include <px4_platform_common/module.h>
+#include <px4_platform_common/module_params.h>
+#include <uORB/SubscriptionInterval.hpp>
+#include <uORB/topics/parameter_update.h>
 
-#include <nuttx/config.h>
+using namespace time_literals;
 
-#include <stdbool.h>
+extern "C" __EXPORT int flash_main(int argc, char *argv[]);
 
-#include "board_config.h"
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-#if defined(GPIO_OTGFS_VBUS)
-int board_read_VBUS_state(void)
+class Flash : public ModuleBase<Flash>, public ModuleParams
 {
-	return (px4_arch_gpioread(GPIO_OTGFS_VBUS) ? 0 : 1);
-	// return (1);
-}
-#endif
+public:
+	Flash(int example_param, bool example_flag);
 
-int boardctrl_read_VBUS_state(void)
-{
-	return board_read_VBUS_state();
-}
+	virtual ~Flash() = default;
 
-void boardctrl_indicate_external_lockout_state(bool enable)
-{
-#if defined(GPIO_nARMED)
-	px4_arch_configgpio((enable) ? GPIO_nARMED : GPIO_nARMED_INIT);
-#else
-	UNUSED(enable);
-#endif
-}
+	/** @see ModuleBase */
+	static int task_spawn(int argc, char *argv[]);
 
-bool boardctrl_get_external_lockout_state(void)
-{
-#if defined(GPIO_nARMED)
-	return px4_arch_gpioread(GPIO_nARMED);
-#else
-	return false;
-#endif
-}
+	/** @see ModuleBase */
+	static Flash *instantiate(int argc, char *argv[]);
+
+	/** @see ModuleBase */
+	static int custom_command(int argc, char *argv[]);
+
+	/** @see ModuleBase */
+	static int print_usage(const char *reason = nullptr);
+
+	/** @see ModuleBase::run() */
+	void run() override;
+
+	/** @see ModuleBase::print_status() */
+	int print_status() override;
+
+private:
+
+	/**
+	 * Check for parameter changes and update them if needed.
+	 * @param parameter_update_sub uorb subscription to parameter_update
+	 * @param force for a parameter update
+	 */
+	void parameters_update(bool force = false);
+
+
+	DEFINE_PARAMETERS(
+		(ParamInt<px4::params::SYS_AUTOSTART>) _param_sys_autostart,   /**< example parameter */
+		(ParamInt<px4::params::SYS_AUTOCONFIG>) _param_sys_autoconfig  /**< another parameter */
+	)
+
+	// Subscriptions
+	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s};
+
+};

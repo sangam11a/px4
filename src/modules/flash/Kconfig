@@ -1,0 +1,5 @@
+menuconfig MODULES_FLASH
+	bool "flash"
+	default n
+	---help---
+		Enable support for attached flash device

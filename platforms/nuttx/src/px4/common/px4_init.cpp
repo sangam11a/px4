@@ -179,6 +179,7 @@ int px4_platform_init()
 #endif // CONFIG_FS_BINFS
 
 	px4::WorkQueueManagerStart();
+	cdcacm_init();
 
 	param_init();
 

@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (C) 2020 Technology Innovation Institute. All rights reserved.
+ *   Copyright (C) 2020 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,47 +31,48 @@
  *
  ****************************************************************************/
 
-/****************************************************************************
- * Included Files
- ****************************************************************************/
+#include <px4_arch/spi_hw_description.h>
+#include <drivers/drv_sensor.h>
+#include <nuttx/spi/spi.h>
 
-#include <nuttx/config.h>
+constexpr px4_spi_bus_t px4_spi_buses[SPI_BUS_MAX_BUS_ITEMS] = {
+	initSPIBus(SPI::Bus::SPI1, {
+		initSPIDevice(DRV_IMU_DEVTYPE_MPU9250, SPI::CS{GPIO::PortC, GPIO::Pin2}, SPI::DRDY{GPIO::PortD, GPIO::Pin15}),
+		initSPIDevice(DRV_IMU_DEVTYPE_ICM20602, SPI::CS{GPIO::PortC, GPIO::Pin15}, SPI::DRDY{GPIO::PortC, GPIO::Pin14}),
+		initSPIDevice(DRV_IMU_DEVTYPE_ICM20608G, SPI::CS{GPIO::PortC, GPIO::Pin15}, SPI::DRDY{GPIO::PortC, GPIO::Pin14}),
+		initSPIDevice(DRV_MAG_DEVTYPE_HMC5883, SPI::CS{GPIO::PortE, GPIO::Pin15}, SPI::DRDY{GPIO::PortE, GPIO::Pin12}), // hmc5983
+		initSPIDevice(DRV_MAG_DEVTYPE_LIS3MDL, SPI::CS{GPIO::PortE, GPIO::Pin15}, SPI::DRDY{GPIO::PortE, GPIO::Pin12}),
+	}, {GPIO::PortE, GPIO::Pin3}),
+	initSPIBus(SPI::Bus::SPI2, {
+		initSPIDevice(SPIDEV_FLASH(0), SPI::CS{GPIO::PortD, GPIO::Pin10}),
+		initSPIDevice(DRV_BARO_DEVTYPE_MS5611, SPI::CS{GPIO::PortD, GPIO::Pin7}),
+	}),
+	initSPIBus(SPI::Bus::SPI3, {
+		initSPIDevice(SPIDEV_FLASH(0), SPI::CS{GPIO::PortD, GPIO::Pin0}),
+	}),
+	initSPIBusExternal(SPI::Bus::SPI4, {
+		initSPIConfigExternal(SPI::CS{GPIO::PortA, GPIO::Pin8}),
+	}),
+};
 
-#include <stdbool.h>
+static constexpr bool unused = validateSPIConfig(px4_spi_buses);
 
-#include "board_config.h"
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-#if defined(GPIO_OTGFS_VBUS)
-int board_read_VBUS_state(void)
+__EXPORT bool board_has_bus(enum board_bus_types type, uint32_t bus)
 {
-	return (px4_arch_gpioread(GPIO_OTGFS_VBUS) ? 0 : 1);
-	// return (1);
-}
-#endif
+	bool rv = true;
 
-int boardctrl_read_VBUS_state(void)
-{
-	return board_read_VBUS_state();
-}
+	switch (type) {
+	case BOARD_SPI_BUS:
+#ifdef CONFIG_STM32_SPI4
+		rv = bus != 4 || (stm32_gpioread(GPIO_8266_GPIO2) == 0);
+#endif /* CONFIG_STM32_SPI4 */
+		break;
 
-void boardctrl_indicate_external_lockout_state(bool enable)
-{
-#if defined(GPIO_nARMED)
-	px4_arch_configgpio((enable) ? GPIO_nARMED : GPIO_nARMED_INIT);
-#else
-	UNUSED(enable);
-#endif
-}
+	case BOARD_I2C_BUS:
+		break;
 
-bool boardctrl_get_external_lockout_state(void)
-{
-#if defined(GPIO_nARMED)
-	return px4_arch_gpioread(GPIO_nARMED);
-#else
-	return false;
-#endif
+	default: break;
+	}
+
+	return rv;
 }

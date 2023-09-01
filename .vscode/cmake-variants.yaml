@@ -281,3 +281,8 @@ CONFIG:
       buildType: MinSizeRel
       settings:
         CONFIG: raspberrypi_pico_default
+    apn_danfe-v1_default:
+      short: apn_danfe-v1
+      buildType: MinSizeRel
+      settings:
+        CONFIG: apn_danfe-v1_default

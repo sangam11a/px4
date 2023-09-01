@@ -363,7 +363,7 @@ int io_timer_validate_channel_index(unsigned channel)
 	return rv;
 }
 
-uint32_t io_timer_channel_get_gpio_output(unsigned channel)
+uint32_t  io_timer_channel_get_gpio_output(unsigned channel)
 {
 	if (io_timer_validate_channel_index(channel) != 0) {
 		return 0;

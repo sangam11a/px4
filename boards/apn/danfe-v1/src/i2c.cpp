@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (C) 2020 Technology Innovation Institute. All rights reserved.
+ *   Copyright (C) 2020 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,47 +31,8 @@
  *
  ****************************************************************************/
 
-/****************************************************************************
- * Included Files
- ****************************************************************************/
+#include <px4_arch/i2c_hw_description.h>
 
-#include <nuttx/config.h>
-
-#include <stdbool.h>
-
-#include "board_config.h"
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-#if defined(GPIO_OTGFS_VBUS)
-int board_read_VBUS_state(void)
-{
-	return (px4_arch_gpioread(GPIO_OTGFS_VBUS) ? 0 : 1);
-	// return (1);
-}
-#endif
-
-int boardctrl_read_VBUS_state(void)
-{
-	return board_read_VBUS_state();
-}
-
-void boardctrl_indicate_external_lockout_state(bool enable)
-{
-#if defined(GPIO_nARMED)
-	px4_arch_configgpio((enable) ? GPIO_nARMED : GPIO_nARMED_INIT);
-#else
-	UNUSED(enable);
-#endif
-}
-
-bool boardctrl_get_external_lockout_state(void)
-{
-#if defined(GPIO_nARMED)
-	return px4_arch_gpioread(GPIO_nARMED);
-#else
-	return false;
-#endif
-}
+constexpr px4_i2c_bus_t px4_i2c_buses[I2C_BUS_MAX_BUS_ITEMS] = {
+	initI2CBusExternal(1),
+};

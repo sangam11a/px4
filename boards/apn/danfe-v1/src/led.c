@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (C) 2020 Technology Innovation Institute. All rights reserved.
+ *   Copyright (c) 2013 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,47 +31,76 @@
  *
  ****************************************************************************/
 
-/****************************************************************************
- * Included Files
- ****************************************************************************/
+/**
+ * @file led.c
+ *
+ * PX4FMU LED backend.
+ */
 
-#include <nuttx/config.h>
+#include <px4_platform_common/px4_config.h>
 
 #include <stdbool.h>
 
+#include "stm32.h"
 #include "board_config.h"
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
+#include <arch/board/board.h>
 
-#if defined(GPIO_OTGFS_VBUS)
-int board_read_VBUS_state(void)
+/*
+ * Ideally we'd be able to get these from arm_internal.h,
+ * but since we want to be able to disable the NuttX use
+ * of leds for system indication at will and there is no
+ * separate switch, we need to build independent of the
+ * CONFIG_ARCH_LEDS configuration switch.
+ */
+__BEGIN_DECLS
+extern void led_init(void);
+extern void led_on(int led);
+extern void led_off(int led);
+extern void led_toggle(int led);
+__END_DECLS
+
+
+
+static uint32_t g_ledmap[] = {
+	GPIO_LED_BLUE,    // Indexed by LED_BLUE
+	GPIO_LED_RED,     // Indexed by LED_RED, LED_AMBER
+	GPIO_LED_SAFETY,  // Indexed by LED_SAFETY
+	GPIO_LED_GREEN,   // Indexed by LED_GREEN
+};
+
+__EXPORT void led_init(void)
 {
-	return (px4_arch_gpioread(GPIO_OTGFS_VBUS) ? 0 : 1);
-	// return (1);
+	/* Configure LED GPIOs for output */
+	for (size_t l = 0; l < (sizeof(g_ledmap) / sizeof(g_ledmap[0])); l++) {
+		stm32_configgpio(g_ledmap[l]);
+	}
 }
-#endif
 
-int boardctrl_read_VBUS_state(void)
+static void phy_set_led(int led, bool state)
 {
-	return board_read_VBUS_state();
+	/* Pull Down to switch on */
+	stm32_gpiowrite(g_ledmap[led], !state);
 }
 
-void boardctrl_indicate_external_lockout_state(bool enable)
+static bool phy_get_led(int led)
 {
-#if defined(GPIO_nARMED)
-	px4_arch_configgpio((enable) ? GPIO_nARMED : GPIO_nARMED_INIT);
-#else
-	UNUSED(enable);
-#endif
+
+	return !stm32_gpioread(g_ledmap[led]);
 }
 
-bool boardctrl_get_external_lockout_state(void)
+__EXPORT void led_on(int led)
 {
-#if defined(GPIO_nARMED)
-	return px4_arch_gpioread(GPIO_nARMED);
-#else
-	return false;
-#endif
+	phy_set_led(led, true);
+}
+
+__EXPORT void led_off(int led)
+{
+	phy_set_led(led, false);
+}
+
+__EXPORT void led_toggle(int led)
+{
+
+	phy_set_led(led, !phy_get_led(led));
 }
