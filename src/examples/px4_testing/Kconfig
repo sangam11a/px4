@@ -1,0 +1,5 @@
+menuconfig EXAMPLES_PX4_TESTING
+	bool "px4_testing"
+	default n
+	---help---
+		Enable support for testing
