@@ -86,6 +86,16 @@ CONFIG:
       buildType: MinSizeRel
       settings:
         CONFIG: airmind_mindpx-v2_default
+    apn_danfe-v1_default:
+      short: apn_danfe-v1
+      buildType: MinSizeRel
+      settings:
+        CONFIG: apn_danfe-v1_default
+    apn_phi-v1_default:
+      short: apn_phi-v1
+      buildType: MinSizeRel
+      settings:
+        CONFIG: apn_phi-v1_default
     ark_can-flow_default:
       short: ark_can-flow_default
       buildType: MinSizeRel
@@ -281,8 +291,3 @@ CONFIG:
       buildType: MinSizeRel
       settings:
         CONFIG: raspberrypi_pico_default
-    apn_danfe-v1_default:
-      short: apn_danfe-v1
-      buildType: MinSizeRel
-      settings:
-        CONFIG: apn_danfe-v1_default
