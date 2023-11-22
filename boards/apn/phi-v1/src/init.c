@@ -110,14 +110,41 @@ __END_DECLS
  ************************************************************************************/
 __EXPORT void board_peripheral_reset(int ms)
 {
-	// Set the peripheral rails off.
-	stm32_configgpio(GPIO_PERIPH_3V3_EN);
+	// Setting the kill switch control gpio
 
-	stm32_gpiowrite(GPIO_PERIPH_3V3_EN, 0);
+	stm32_gpiowrite(GPIO_KILL_SW_EN, 0);
+	stm32_gpiowrite(GPIO_KILL_SW1_NEG, 0);
+	stm32_gpiowrite(GPIO_KILL_SW1_POS, 0);
+	stm32_gpiowrite(GPIO_KILL_SW2_NEG, 0);
+	stm32_gpiowrite(GPIO_KILL_SW2_POS, 0);
 
-	bool last = stm32_gpioread(GPIO_SPEKTRUM_PWR_EN);
-	// Keep Spektum on to discharge rail.
-	stm32_gpiowrite(GPIO_SPEKTRUM_PWR_EN, 1);
+	// setting watchdog and reset GPIOs
+	stm32_gpiowrite(GPIO_GBL_RST, 0);
+	// stm32_gpiowrite(GPIO_WD_WDI, 0); // setting initial watchdog pin status
+
+	// setting power contorl pins
+	stm32_gpiowrite(GPIO_DCDC_IMU_EN, 1);	// enable IMU regulator
+	stm32_gpiowrite(GPIO_DCDC_MSN, 1); 	// enable MSN regulator
+	stm32_gpiowrite(GPIO_MSN_3V3_EN, 0);	//Disable MSN power (ssoc)
+	stm32_gpiowrite(GPIO_MSN_5V_EN, 1);	// enable IMU power
+	stm32_gpiowrite(GPIO_BURNER_EN, 0);	// Disable Burner enable
+	stm32_gpiowrite(GPIO_UNREG_EN, 0);	// Disable UNREG power line
+
+	// setting MSN control Pin
+	stm32_gpiowrite(GPIO_MSN1_EN, 0);	//Disable MSN activation
+
+	// setting flash control pins
+	stm32_gpiowrite(GPIO_MFM_RST, 1);	// disabling flash reset
+	stm32_gpiowrite(GPIO_MFM_HOLD, 1);	// disabling flash hold
+	stm32_gpiowrite(GPIO_MFM_WP, 1);	// disabling hadware WP of flash
+
+	stm32_gpiowrite(GPIO_SFM_RST, 1);	// disabling flash reset
+	stm32_gpiowrite(GPIO_sFM_HOLD, 1);	// disabling flash hold
+	stm32_gpiowrite(GPIO_SFM_WP, 1);	// disabling hadware WP of flash
+
+	// bool last = stm32_gpioread(GPIO_SPEKTRUM_PWR_EN);
+	// // Keep Spektum on to discharge rail.
+	// stm32_gpiowrite(GPIO_SPEKTRUM_PWR_EN, 1);
 
 	// Wait for the peripheral rail to reach GND.
 	usleep(ms * 1000);
@@ -125,8 +152,7 @@ __EXPORT void board_peripheral_reset(int ms)
 
 	// Re-enable power.
 	// Switch the peripheral rail back on.
-	stm32_gpiowrite(GPIO_SPEKTRUM_PWR_EN, last);
-	stm32_gpiowrite(GPIO_PERIPH_3V3_EN, 1);
+	// stm32_gpiowrite(GPIO_SPEKTRUM_PWR_EN, last);
 
 }
 
@@ -174,51 +200,47 @@ stm32_boardinitialize(void)
 	// Reset all PWM to Low outputs.
 	board_on_reset(-1);
 
-	// Configure LEDs.
-	board_autoled_initialize();
-
-
 	// Configure ADC pins.
-	stm32_configgpio(GPIO_ADC1_IN2);	/* BATT_VOLTAGE_SENS */
-	stm32_configgpio(GPIO_ADC1_IN3);	/* BATT_CURRENT_SENS */
-	stm32_configgpio(GPIO_ADC1_IN4);	/* VDD_5V_SENS */
-	stm32_configgpio(GPIO_ADC1_IN11);	/* RSSI analog in */
+	// stm32_configgpio(GPIO_ADC1_IN2);	/* BATT_VOLTAGE_SENS */
+	// stm32_configgpio(GPIO_ADC1_IN3);	/* BATT_CURRENT_SENS */
+	// stm32_configgpio(GPIO_ADC1_IN4);	/* VDD_5V_SENS */
+	// stm32_configgpio(GPIO_ADC1_IN11);	/* RSSI analog in */
 
 
-	// Configure power supply control/sense pins.
-	stm32_configgpio(GPIO_PERIPH_3V3_EN);
-	stm32_configgpio(GPIO_VDD_BRICK_VALID);
+	// Configure Watchdog and Reset control pins.
+	stm32_configgpio(GPIO_WD_WDI);
+	stm32_configgpio(GPIO_GBL_RST);
 
-	stm32_configgpio(GPIO_SBUS_INV);
-	stm32_configgpio(GPIO_SPEKTRUM_PWR_EN);
+	// Configure KILL Switch Control and Monitoring GPIOs
+	stm32_configgpio(GPIO_KILL_SW_EN);
+	stm32_configgpio(GPIO_KILL_SW1_STAT); //input
+	stm32_configgpio(GPIO_KILL_SW1_NEG);
+	stm32_configgpio(GPIO_KILL_SW1_POS);
+	stm32_configgpio(GPIO_KILL_SW2_STAT); //input
+	stm32_configgpio(GPIO_KILL_SW2_NEG);
+	stm32_configgpio(GPIO_KILL_SW2_POS);
 
-	stm32_configgpio(GPIO_8266_GPIO2);
-	stm32_configgpio(GPIO_8266_GPIO0);
+	// Configure power supply control pins
+	stm32_configgpio(GPIO_DCDC_IMU_EN);
+	stm32_configgpio(GPIO_DCDC_MSN);
+	stm32_configgpio(GPIO_MSN_3V3_EN);
+	stm32_configgpio(GPIO_MSN_5V_EN);
+	stm32_configgpio(GPIO_BURNER_EN);
+	stm32_configgpio(GPIO_UNREG_EN);
 
-	// Safety - led on in led driver.
-	stm32_configgpio(GPIO_BTN_SAFETY);
-	stm32_configgpio(GPIO_PPM_IN);
+	// Configure MSN Control Pins
+	stm32_configgpio(GPIO_MSN1_EN);
 
-#if defined(CONFIG_STM32_SPI4)
-
-	/* We have SPI4 is GPIO_8266_GPIO2 PB4 pin 3 Low */
-	if (stm32_gpioread(GPIO_8266_GPIO2) != 0) {
-#endif /* CONFIG_STM32_SPI4 */
-
-		stm32_configgpio(GPIO_8266_PD);
-		stm32_configgpio(GPIO_8266_RST);
-
-#if defined(CONFIG_STM32_SPI4)
-	}
-
-#endif /* CONFIG_STM32_SPI4 */
+	// Configure Flash contorl pins
+	stm32_configgpio(GPIO_MFM_RST);
+	stm32_configgpio(GPIO_MFM_HOLD);
+	stm32_configgpio)GPIO_MFM_WP);
+	stm32_configgpio(GPIO_SFM_RST);
+	stm32_configgpio(GPIO_SFM_HOLD);
+	stm32_configgpio(GPIO_SFM_WP);
 
 	// Configure SPI all interfaces GPIO & enable power.
 	stm32_spiinitialize();
-
-	// Configure heater GPIO.
-	stm32_configgpio(GPIO_HEATER_INPUT);
-	stm32_configgpio(GPIO_HEATER_OUTPUT);
 }
 
 /****************************************************************************

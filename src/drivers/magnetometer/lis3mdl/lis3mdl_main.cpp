@@ -45,10 +45,11 @@ I2CSPIDriverBase *LIS3MDL::instantiate(const I2CSPIDriverConfig &config, int run
 {
 	device::Device *interface = nullptr;
 
-	if (config.bus_type == BOARD_I2C_BUS) {
-		interface = LIS3MDL_I2C_interface(config);
+	// if (config.bus_type == BOARD_I2C_BUS) {
+	// 	interface = LIS3MDL_I2C_interface(config);
 
-	} else if (config.bus_type == BOARD_SPI_BUS) {
+	// } else
+	if (config.bus_type == BOARD_SPI_BUS) {
 		interface = LIS3MDL_SPI_interface(config);
 	}
 

@@ -41,13 +41,14 @@ constexpr px4_spi_bus_t px4_spi_buses[SPI_BUS_MAX_BUS_ITEMS] = {
 		initSPIDevice(DRV_MAG_DEVTYPE_LIS3MDL, SPI::CS{GPIO::PortE, GPIO::Pin7}), // Mag
 	},
 	initSPIBus(SPI::Bus::SPI2, {
-		initSPIConfigExternal(SPI::CS{GPIO::PortE, GPIO::Pin15}), //external ADC1 cs pin
+		initSPIConfigExternal(SPIDEV_ADC(0), SPI::CS{GPIO::PortE, GPIO::Pin15}), //external ADC1 cs pin
+		initSPIConfigExternal(SPIDEV_ADC(1), SPI::CS{GPIO::PortE, GPIO::Pin14}), //external ADC cs pin
 	}),
 	initSPIBus(SPI::Bus::SPI3, {
 		initSPIDevice(SPIDEV_FLASH(0), SPI::CS{GPIO::PortD, GPIO::Pin0}), //Main FM, MT25QL
 	}),
 	initSPIBusExternal(SPI::Bus::SPI4, {
-		initSPIDevice(SPIDEV_FLASH(1), SPI::CS{GPIO::PortA, GPIO::Pin2}), //Main FM, MT25QL
+		initSPIDevice(SPIDEV_FLASH(1), SPI::CS{GPIO::PortA, GPIO::Pin2}), //Shared FM, MT25QL
 	}),
 };
 
@@ -60,10 +61,6 @@ __EXPORT bool board_has_bus(enum board_bus_types type, uint32_t bus)
 	switch (type) {
 	case BOARD_SPI_BUS:
 		break;
-
-	case BOARD_I2C_BUS:
-		break;
-
 	default: break;
 	}
 

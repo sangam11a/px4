@@ -64,7 +64,7 @@
  *   APB1 Prescaler                : 4            (STM32_RCC_CFGR_PPRE1)
  *   APB2 Prescaler                : 2            (STM32_RCC_CFGR_PPRE2)
  *   HSE Frequency(Hz)             : 24000000     (STM32_BOARD_XTAL)
- *   PLLM                          : 24           (STM32_PLLCFG_PLLM)
+ *   PLLM                          : 24	          (STM32_PLLCFG_PLLM)
  *   PLLN                          : 336          (STM32_PLLCFG_PLLN)
  *   PLLP                          : 2            (STM32_PLLCFG_PLLP)
  *   PLLQ                          : 7            (STM32_PLLCFG_PPQ)
@@ -83,7 +83,7 @@
  * LSE - not installed
  */
 
-#define STM32_BOARD_XTAL        8000000ul
+#define STM32_BOARD_XTAL        24000000ul
 
 #define STM32_HSI_FREQUENCY     16000000ul
 #define STM32_LSI_FREQUENCY     32000
@@ -94,7 +94,7 @@
  *
  * PLL source is HSE
  * PLL_VCO = (STM32_HSE_FREQUENCY / PLLM) * PLLN
- *         = (25,000,000 / 25) * 336
+ *         = (24,000,000 / 24) * 336
  *         = 336,000,000
  * SYSCLK  = PLL_VCO / PLLP
  *         = 336,000,000 / 2 = 168,000,000
@@ -103,7 +103,7 @@
  *         = 48,000,000
  */
 
-#define STM32_PLLCFG_PLLM       RCC_PLLCFG_PLLM(8)
+#define STM32_PLLCFG_PLLM       RCC_PLLCFG_PLLM(24)
 #define STM32_PLLCFG_PLLN       RCC_PLLCFG_PLLN(336)
 #define STM32_PLLCFG_PLLP       RCC_PLLCFG_PLLP_2
 #define STM32_PLLCFG_PLLQ       RCC_PLLCFG_PLLQ(7)
@@ -214,8 +214,8 @@
 #define GPIO_USART6_TX	GPIO_USART6_TX_1
 
 
-#define GPIO_UART8_RX	GPIO_UART8_RX	//ttyS4
-#define GPIO_UART8_TX	GPIO_UART8_TX
+// #define GPIO_UART8_RX	GPIO_UART8_RX	//ttyS4
+// #define GPIO_UART8_TX	GPIO_UART8_TX
 /* UART8 has no alternate pin config */
 
 
@@ -234,34 +234,33 @@
  * reset the bus to clear stuck slaves.  They match the pin configuration,
  * but are normally-high GPIOs.
  */
-#define GPIO_I2C1_SCL		GPIO_I2C1_SCL_2
-#define GPIO_I2C1_SDA		GPIO_I2C1_SDA_2
-#define GPIO_I2C1_SCL_GPIO	(GPIO_OUTPUT|GPIO_OPENDRAIN|GPIO_SPEED_50MHz|GPIO_OUTPUT_SET|GPIO_PORTB|GPIO_PIN8)
-#define GPIO_I2C1_SDA_GPIO	(GPIO_OUTPUT|GPIO_OPENDRAIN|GPIO_SPEED_50MHz|GPIO_OUTPUT_SET|GPIO_PORTB|GPIO_PIN9)
+#define GPIO_I2C1_SCL		GPIO_I2C1_SCL_1
+#define GPIO_I2C1_SDA		GPIO_I2C1_SDA_1
+#define GPIO_I2C1_SCL_GPIO	(GPIO_OUTPUT|GPIO_OPENDRAIN|GPIO_SPEED_50MHz|GPIO_OUTPUT_SET|GPIO_PORTB|GPIO_PIN6)
+#define GPIO_I2C1_SDA_GPIO	(GPIO_OUTPUT|GPIO_OPENDRAIN|GPIO_SPEED_50MHz|GPIO_OUTPUT_SET|GPIO_PORTB|GPIO_PIN7)
 
 
 /*
  * SPI
  *
- * There are sensors on SPI1, and SPI2 is connected to the FRAM.
+ * There are sensors on SPI1, External ADC on SPI2
+ * And Flash Memory on SPI 3 and SPI4
  */
 #define GPIO_SPI1_MISO  (GPIO_SPI1_MISO_2|GPIO_SPEED_50MHz)
-#define GPIO_SPI1_MOSI  (GPIO_SPI1_MOSI_3|GPIO_SPEED_50MHz)
-#define GPIO_SPI1_SCK   (GPIO_SPI1_SCK_3|GPIO_SPEED_50MHz)
+#define GPIO_SPI1_MOSI  (GPIO_SPI1_MOSI_2|GPIO_SPEED_50MHz)
+#define GPIO_SPI1_SCK   (GPIO_SPI1_SCK_2|GPIO_SPEED_50MHz)
 
 #define GPIO_SPI2_MISO  (GPIO_SPI2_MISO_1|GPIO_SPEED_50MHz)
 #define GPIO_SPI2_MOSI  (GPIO_SPI2_MOSI_1|GPIO_SPEED_50MHz)
 #define GPIO_SPI2_SCK   (GPIO_SPI2_SCK_2|GPIO_SPEED_50MHz)
 
 #define GPIO_SPI3_MISO	(GPIO_SPI3_MISO_2|GPIO_SPEED_50MHz)
-#define GPIO_SPI3_MOSI	(GPIO_SPI3_M0SI_2|GPIO_SPEED_50MHz)
+#define GPIO_SPI3_MOSI	(GPIO_SPI3_MOSI_2|GPIO_SPEED_50MHz)
 #define GPIO_SPI3_SCK	(GPIO_SPI3_SCK_2|GPIO_SPEED_50MHz)
 
-// #if defined(CONFIG_STM32_SPI4)
 #define GPIO_SPI4_MISO  (GPIO_SPI4_MISO_1|GPIO_SPEED_50MHz)
 #define GPIO_SPI4_MOSI  (GPIO_SPI4_MOSI_1|GPIO_SPEED_50MHz)
 #define GPIO_SPI4_SCK   (GPIO_SPI4_SCK_1|GPIO_SPEED_50MHz)
-// #endif
 
 /* Board provides GPIO or other Hardware for signaling to timing analyzer */
 
