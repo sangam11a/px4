@@ -1,0 +1,13 @@
+{
+    "board_id": 174,
+    "magic": "APN_PHI_v1",
+    "description": "Firmware for the APN_PHI_v1S board",
+    "image": "",
+    "build_time": 0,
+    "summary": "APN_PHI_v1S",
+    "version": "0.1",
+    "image_size": 0,
+    "image_maxsize": 2080768,
+    "git_identity": "",
+    "board_revision": 0
+}

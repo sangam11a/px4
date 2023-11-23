@@ -163,6 +163,7 @@ set(msg_files
 	RcParameterMap.msg
 	Rpm.msg
 	RtlTimeEstimate.msg
+	S2s.msg
 	SatelliteInfo.msg
 	SensorAccel.msg
 	SensorAccelFifo.msg
