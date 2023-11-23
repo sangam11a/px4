@@ -39,12 +39,17 @@
 
 #pragma once
 
-#include <drivers/device/i2c.h>
+// #include <drivers/device/i2c.h>
 #include <drivers/drv_hrt.h>
 #include <px4_platform_common/i2c_spi_buses.h>
 #include <lib/perf/perf_counter.h>
 #include <px4_platform_common/defines.h>
 #include <lib/drivers/magnetometer/PX4Magnetometer.hpp>
+
+
+# include </home/user_/Documents/PX4_WORKSPACE/PX4-Autopilot/platforms/common/include/px4_platform_common/spi.h>
+
+# include <drivers/device/spi.h>
 
 /**
  * LIS3MDL internal constants and data structures.

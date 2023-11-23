@@ -529,9 +529,10 @@ _file_clear(dm_item_t item)
 static int
 _file_initialize(unsigned max_offset)
 {
+	PX4_INFO("starting file initialize");
 	/* Open or create the data manager file */
 	dm_operations_data.file.fd = open(k_data_manager_device_path, O_RDWR | O_CREAT | O_BINARY, PX4_O_MODE_666);
-
+	PX4_INFO("dm_operations_data.file.fd value: (%i)", dm_operations_data.file.fd);
 	if (dm_operations_data.file.fd < 0) {
 		PX4_WARN("Could not open data manager file %s", k_data_manager_device_path);
 		px4_sem_post(&g_init_sema); /* Don't want to hang startup */
@@ -623,10 +624,12 @@ _ram_shutdown()
 static int
 task_main(int argc, char *argv[])
 {
+	PX4_INFO("Start of Dataman module");
 	/* Dataman can use disk or RAM */
 	switch (backend) {
 	case BACKEND_FILE:
 		g_dm_ops = &dm_file_operations;
+		PX4_INFO("backend file operation pointers found");
 		break;
 
 	case BACKEND_RAM:
@@ -660,6 +663,7 @@ task_main(int argc, char *argv[])
 	if (dataman_request_sub < 0) {
 		PX4_ERR("Failed to subscribe (%i)", errno);
 	}
+	PX4_INFO("Dataman Subscribes (%i)", dataman_request_sub);
 
 	_dm_read_perf = perf_alloc(PC_ELAPSED, MODULE_NAME": read");
 	_dm_write_perf = perf_alloc(PC_ELAPSED, MODULE_NAME": write");
@@ -668,6 +672,7 @@ task_main(int argc, char *argv[])
 
 	if (ret) {
 		g_task_should_exit = true;
+		PX4_ERR("going to end without accessing dataman file");
 		goto end;
 	}
 

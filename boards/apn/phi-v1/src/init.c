@@ -57,9 +57,9 @@
 
 #include <nuttx/board.h>
 #include <nuttx/spi/spi.h>
-#include <nuttx/i2c/i2c_master.h>
-#include <nuttx/sdio.h>
-#include <nuttx/mmcsd.h>
+// #include <nuttx/i2c/i2c_master.h>
+// #include <nuttx/sdio.h>
+// #include <nuttx/mmcsd.h>
 #include <nuttx/analog/adc.h>
 #include <nuttx/mm/gran.h>
 
@@ -70,7 +70,7 @@
 #include <arch/board/board.h>
 
 #include <drivers/drv_hrt.h>
-#include <drivers/drv_board_led.h>
+// #include <drivers/drv_board_led.h>
 
 #include <systemlib/px4_macros.h>
 
@@ -82,19 +82,6 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
-
-/**
- * Ideally we'd be able to get these from arm_internal.h,
- * but since we want to be able to disable the NuttX use
- * of leds for system indication at will and there is no
- * separate switch, we need to build independent of the
- * CONFIG_ARCH_LEDS configuration switch.
- */
-__BEGIN_DECLS
-// extern void led_init(void);
-// extern void led_on(int led);
-// extern void led_off(int led);
-__END_DECLS
 
 /****************************************************************************
  * Protected Functions
@@ -139,9 +126,10 @@ __EXPORT void board_peripheral_reset(int ms)
 	stm32_gpiowrite(GPIO_MFM_WP, 1);	// disabling hadware WP of flash
 
 	stm32_gpiowrite(GPIO_SFM_RST, 1);	// disabling flash reset
-	stm32_gpiowrite(GPIO_sFM_HOLD, 1);	// disabling flash hold
+	stm32_gpiowrite(GPIO_SFM_HOLD, 1);	// disabling flash hold
 	stm32_gpiowrite(GPIO_SFM_WP, 1);	// disabling hadware WP of flash
-
+	stm32_gpiowrite(GPIO_SFM_MODE, 1);
+	stm32_gpiowrite(GPIO_MUX_EN, 0);
 	// bool last = stm32_gpioread(GPIO_SPEKTRUM_PWR_EN);
 	// // Keep Spektum on to discharge rail.
 	// stm32_gpiowrite(GPIO_SPEKTRUM_PWR_EN, 1);
@@ -208,7 +196,7 @@ stm32_boardinitialize(void)
 
 
 	// Configure Watchdog and Reset control pins.
-	stm32_configgpio(GPIO_WD_WDI);
+	// stm32_configgpio(GPIO_WD_WDI);
 	stm32_configgpio(GPIO_GBL_RST);
 
 	// Configure KILL Switch Control and Monitoring GPIOs
@@ -231,16 +219,18 @@ stm32_boardinitialize(void)
 	// Configure MSN Control Pins
 	stm32_configgpio(GPIO_MSN1_EN);
 
-	// Configure Flash contorl pins
+	// Configure Flash control pins
 	stm32_configgpio(GPIO_MFM_RST);
 	stm32_configgpio(GPIO_MFM_HOLD);
-	stm32_configgpio)GPIO_MFM_WP);
+	stm32_configgpio(GPIO_MFM_WP);
 	stm32_configgpio(GPIO_SFM_RST);
 	stm32_configgpio(GPIO_SFM_HOLD);
 	stm32_configgpio(GPIO_SFM_WP);
-
+	stm32_configgpio(GPIO_SFM_MODE);
+	stm32_configgpio(GPIO_MUX_EN);
 	// Configure SPI all interfaces GPIO & enable power.
 	stm32_spiinitialize();
+	// board_peripheral_reset(10);
 }
 
 /****************************************************************************
@@ -289,8 +279,6 @@ __EXPORT int board_app_initialize(uintptr_t arg)
 #endif
 	if (board_hardfault_init(2, true) != 0) {
 	}
-	// Power down the heater.
-	stm32_gpiowrite(GPIO_HEATER_OUTPUT, 0);
 
 	// Configure SPI-based devices.
 	spi1 = stm32_spibus_initialize(1);

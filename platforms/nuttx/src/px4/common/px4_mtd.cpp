@@ -59,7 +59,11 @@
 #include <nuttx/mtd/mtd.h>
 
 extern "C" {
-	struct mtd_dev_s *ramtron_initialize(FAR struct spi_dev_s *dev);
+	#if defined(CONFIG_MTD_MT25QL)
+	struct mtd_dev_s *mt25ql_initialize(FAR struct spi_dev_s *dev);
+	#else
+	struct mtd_dev_s *ramtron_initalize(FAR struct spi_dev_s *dev);
+	#endif
 	struct mtd_dev_s *mtd_partition(FAR struct mtd_dev_s *mtd,
 					off_t firstblock, off_t nblocks);
 }
@@ -67,7 +71,7 @@ static int num_instances = 0;
 static int total_blocks = 0;
 static mtd_instance_s *instances[MAX_MTD_INSTANCES] = {};
 
-
+#if !defined(CONFIG_MTD_MT25QL)
 static int ramtron_attach(mtd_instance_s &instance)
 {
 #if !defined(CONFIG_MTD_RAMTRON)
@@ -130,7 +134,72 @@ static int ramtron_attach(mtd_instance_s &instance)
 	return 0;
 #endif
 }
+#endif
 
+static int mt25ql_attach(mtd_instance_s &instance)
+{
+
+#if !defined(CONFIG_MTD_MT25QL)
+	PX4_ERR("Misconfiguration CONFIG_MTD_MT25QL not set");
+	return ENXIO;
+#else
+	PX4_INFO("Starting MTD, MT25QL driver");
+
+	/* start the MT25QL driver, attempt 10 times */
+
+	int spi_speed_mhz = 12;
+
+	for (int i = 0; i < 12; i++) {
+		/* initialize the right spi */
+		struct spi_dev_s *spi = px4_spibus_initialize(px4_find_spi_bus(instance.devid));
+
+		if (spi == nullptr) {
+			PX4_ERR("failed to locate spi bus");
+			return -ENXIO;
+		}
+
+		/* this resets the spi bus, set correct bus speed again */
+		SPI_LOCK(spi, true);
+		SPI_SETFREQUENCY(spi, spi_speed_mhz * 1000 * 1000);
+		SPI_SETBITS(spi, 8);
+		SPI_SETMODE(spi, SPIDEV_MODE0);
+		SPI_SELECT(spi, instance.devid, false);
+		SPI_LOCK(spi, false);
+
+		instance.mtd_dev = mt25ql_initialize(spi);
+
+		if (instance.mtd_dev) {
+			/* abort on first valid result */
+			if (i > 0) {
+				PX4_WARN("mtd needed %d attempts to attach", i + 1);
+			}
+
+			break;
+		}
+
+		// try reducing speed for next attempt
+		spi_speed_mhz--;
+		px4_usleep(10000);
+	}
+
+	/* if last attempt is still unsuccessful, abort */
+	if (instance.mtd_dev == nullptr) {
+		PX4_ERR("failed to initialize mtd driver");
+		return -EIO;
+	}
+
+	int ret = instance.mtd_dev->ioctl(instance.mtd_dev, MTDIOC_SETSPEED, (unsigned long)spi_speed_mhz * 1000 * 1000);
+
+	if (ret != OK) {
+		// FIXME: From the previous warning call, it looked like this should have been fatal error instead. Tried
+		// that but setting the bus speed does fail all the time. Which was then exiting and the board would
+		// not run correctly. So changed to PX4_WARN.
+		PX4_WARN("failed to set bus speed");
+	}
+
+	return 0;
+#endif
+}
 
 static int at24xxx_attach(mtd_instance_s &instance)
 {
@@ -356,7 +425,11 @@ memoryout:
 			rv = at24xxx_attach(*instances[i]);
 
 		} else if (mtd_list->entries[num_entry]->device->bus_type == px4_mft_device_t::SPI) {
+			#ifdef CONFIG_MTD_MT25QL
+			rv = mt25ql_attach(*instances[i]);
+			#else
 			rv = ramtron_attach(*instances[i]);
+			#endif
 
 		} else if (mtd_list->entries[num_entry]->device->bus_type == px4_mft_device_t::ONCHIP) {
 			instances[i]->n_partitions_current++;

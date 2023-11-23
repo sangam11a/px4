@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (C) 2020 PX4 Development Team. All rights reserved.
+ *   Copyright (C) 2022 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,38 +31,80 @@
  *
  ****************************************************************************/
 
-#include <px4_arch/spi_hw_description.h>
-#include <drivers/drv_sensor.h>
 #include <nuttx/spi/spi.h>
-
-constexpr px4_spi_bus_t px4_spi_buses[SPI_BUS_MAX_BUS_ITEMS] = {
-	initSPIBus(SPI::Bus::SPI1, {
-		initSPIDevice(DRV_IMU_DEVTYPE_MPU6500, SPI::CS{GPIO::PortE, GPIO::Pin8}), // MPU
-		initSPIDevice(DRV_MAG_DEVTYPE_LIS3MDL, SPI::CS{GPIO::PortE, GPIO::Pin7}), // Mag
-	}),
-	initSPIBus(SPI::Bus::SPI2, {
-		initSPIDevice(SPIDEV_ADC(0), SPI::CS{GPIO::PortE, GPIO::Pin15}), //external ADC1 cs pin
-		initSPIDevice(SPIDEV_ADC(1), SPI::CS{GPIO::PortE, GPIO::Pin14}), //external ADC cs pin
-	}),
-	initSPIBus(SPI::Bus::SPI3, {
-		initSPIDevice(SPIDEV_FLASH(0), SPI::CS{GPIO::PortD, GPIO::Pin0}), //Main FM, MT25QL
-	}),
-	initSPIBus(SPI::Bus::SPI4, {
-		initSPIDevice(SPIDEV_FLASH(1), SPI::CS{GPIO::PortA, GPIO::Pin2}), //Shared FM, MT25QL
-	}),
+#include <px4_platform_common/px4_manifest.h>
+//                                                              KiB BS    nB
+static const px4_mft_device_t spi3 = {             // MT25QL on FMUM 1Gb 2048 X 64K
+	.bus_type = px4_mft_device_t::SPI,
+	.devid    = SPIDEV_FLASH(0)
+};
+static const px4_mft_device_t spi4 = {             // MT25QL on FMUM 1Gb 2048 X 64K
+	.bus_type = px4_mft_device_t::SPI,
+	.devid    = SPIDEV_FLASH(1)
 };
 
-static constexpr bool unused = validateSPIConfig(px4_spi_buses);
+static const px4_mtd_entry_t phi_mfm = {
+	.device = &spi3,
+	.npart = 3,
+	.partd = {
+		{
+			.type = MTD_PARAMETERS,
+			.path = "/fs/mtd_params",
+			.nblocks = 32		// this is no of pages to provide
+		},
+		{
+			.type = MTD_WAYPOINTS,
+			.path = "/fs/mtd_waypoints",
+			.nblocks = 32		// represnted with 256 bytes per block
 
-// __EXPORT bool board_has_bus(enum board_bus_types type, uint32_t bus)
-// {
-// 	bool rv = true;
+		},
+		{
+			.type = MTD_MAINSTORAGE,
+			.path = "/fs/mtd_mainstorage",
+			.nblocks= 204800		// 50MB in no of pages, each page having 256 bytes
+		}
+	},
+};
 
-// 	switch (type) {
-// 	case BOARD_SPI_BUS:
-// 		break;
-// 	default: break;
-// 	}
+static const px4_mtd_entry_t phi_sfm = {
+	.device = &spi4,
+	.npart = 2,
+	.partd = {
+		{
+			.type = MTD_MFT_VER,
+			.path = "/fs/mtd_mft_ver",
+			.nblocks = 248
+		},
+		{
+			.type = MTD_NET,
+			.path = "/fs/mtd_net",
+			.nblocks = 8 // 256 = 32 * 8
 
-// 	return rv;
-// }
+		}
+	},
+};
+
+static const px4_mtd_manifest_t board_mtd_config = {
+	.nconfigs   = 2,
+	.entries = {
+		&phi_mfm,
+		&phi_sfm,
+	}
+};
+
+static const px4_mft_entry_s mtd_mft = {
+	.type = MTD,
+	.pmft = (void *) &board_mtd_config,
+};
+
+static const px4_mft_s mft = {
+	.nmft = 1,
+	.mfts = {
+		&mtd_mft
+	}
+};
+
+const px4_mft_s *board_get_manifest(void)
+{
+	return &mft;
+}

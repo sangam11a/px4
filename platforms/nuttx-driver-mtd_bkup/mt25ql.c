@@ -88,7 +88,7 @@ extern "C" {
 
 /* Registers Read Operations */
 
-#define MT25QL_RDDEVID			0x9F	/* READ device id */
+#define MT25QL_RDDEVID			0x9E	/* READ device id */
 #define MT25QL_RDSRFFLSPARAM		0x5A 	/* Read serial flash discovery parameter */
 #define MT25QL_RDSECTPRCT		0x2D	/* Sector protection bits read */
 #define MT25QL_RDVOLLCKBIT		0xE8	/* Volatile lock bits read */
@@ -488,20 +488,23 @@ static inline int mt25ql_readid(FAR struct mt25ql_dev_s *priv)
 	*/
 
 	SPI_SEND(priv->dev, MT25QL_RDDEVID);	// sending the command
-	SPI_RECVBLOCK(priv->dev, devid, 20);
+	// SPI_RECVBLOCK(priv->dev, devid, 20);
+	manufacturer= SPI_SEND(priv->dev, MT25QL_DUMMY);
+	memory = SPI_SEND(priv->dev, MT25QL_DUMMY);
+	capacity = SPI_SEND(priv->dev, MT25QL_DUMMY);
 
 	/* deselecting the flash */
 	SPI_SELECT(priv->dev, SPIDEV_FLASH(0), false);
 	mt25ql_unlock(priv->dev);
 
-	finfo("Read ID: ");
-	for(int i=0; i<20; i++){
-		finfo("%02x ", devid[i]);
-	}
-	finfo("\n");
-	manufacturer = devid[0];
-	memory = devid[1];
-	capacity = devid[2];
+	// finfo("Read ID: ");
+	// for(int i=0; i<20; i++){
+	// 	finfo("%02x ", devid[i]);
+	// }
+	// finfo("\n");
+	// manufacturer = devid[0];
+	// memory = devid[1];
+	// capacity = devid[2];
 
 	/* checking for id validation */
 	if(manufacturer == MT25QL_MANFACTURER && memory == MT25QL_MEMORY_TYPE)
@@ -590,7 +593,7 @@ static uint8_t mt25ql_readsr(struct mt25ql_dev_s *priv)
 	SPI_SELECT(priv->dev, SPIDEV_FLASH(0), true);
 	SPI_SEND(priv->dev, MT25QL_RDSTATREG);
 	status_byte = SPI_SEND(priv->dev, MT25QL_DUMMY);
-	SPI_SELECT(priv->dev, SPI_DEV_FLASH(0), false);
+	SPI_SELECT(priv->dev, SPIDEV_FLASH(0), false);
 	finfo("status: %02x", status_byte);
 	return status_byte;
 }
@@ -777,7 +780,7 @@ static inline int mt25ql_chiperase(struct mt25ql_dev_s *priv)
 
 	mt25ql_waitbusy(priv);
 
-	mt25ql_writeenble(priv);
+	mt25ql_writeenable(priv);
 
 	SPI_SELECT(priv->dev, SPIDEV_FLASH(0), true);
 
@@ -796,14 +799,14 @@ static inline int mt25ql_chiperase(struct mt25ql_dev_s *priv)
 		finfo("Erasing\n");
 		do
 		{
+			mt25ql_lock(priv->dev);
 			status =mt25ql_readsr(priv) ;
 			if((status & MT25QL_SRRDY) != 0)
 			{
 				mt25ql_unlock(priv->dev);
-				nxsis_usleep(10000);
-				mt25ql_lock(priv->dev);
 			}
 		}while((status &MT25QL_SRRDY)!= 0);
+		mt25ql_unlock(priv->dev);
 		finfo("Erased\n");
 		return OK;
 	}
@@ -941,17 +944,19 @@ static int mt25ql_erase(FAR struct mtd_dev_s *dev,
 			{
 				/* Just do a sub-sector erase */
 
-				mt25ql_sectorerase(priv, startblock, MT25QL_32KSUBSECTERS);
+				mt25ql_sectorerase(priv, startblock, MT25QL_4KSUBSECTERS);
 				startblock++;
 				blocksleft--;
 				continue;
 			}
 		}
 		#endif
+
 		/* not using sub-sector erase. Erase each full sector*/
 		mt25ql_sectorerase(priv, startblock, MT25QL_SECTERS);
 		startblock++;
 		blocksleft--;
+
 	}
 	mt25ql_unlock(priv->dev);
 	return (int)nblocks;
@@ -1220,7 +1225,7 @@ static int mt25ql_ioctl(FAR struct mtd_dev_s *dev,
 			/* Erase the entire device */
 
 			mt25ql_lock(priv->dev);
-			ret = mt25ql_bulkerase(priv);
+			ret = mt25ql_chiperase(priv);
 			mt25ql_unlock(priv->dev);
 			}
 			break;

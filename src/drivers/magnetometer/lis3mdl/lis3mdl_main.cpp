@@ -91,7 +91,7 @@ void LIS3MDL::print_usage()
 	PRINT_MODULE_USAGE_SUBCATEGORY("magnetometer");
 	PRINT_MODULE_USAGE_COMMAND("start");
 	PRINT_MODULE_USAGE_PARAMS_I2C_SPI_DRIVER(true, true);
-	PRINT_MODULE_USAGE_PARAMS_I2C_ADDRESS(0x1e);
+	// PRINT_MODULE_USAGE_PARAMS_I2C_ADDRESS(0x1e);
 	PRINT_MODULE_USAGE_PARAM_INT('R', 0, 0, 35, "Rotation", true);
 	PRINT_MODULE_USAGE_COMMAND("reset");
 	PRINT_MODULE_USAGE_DEFAULT_COMMANDS();
@@ -102,8 +102,6 @@ extern "C" int lis3mdl_main(int argc, char *argv[])
 	using ThisDriver = LIS3MDL;
 	int ch;
 	BusCLIArguments cli{true, true};
-	cli.i2c_address = LIS3MDLL_ADDRESS;
-	cli.default_i2c_frequency = 400000;
 	cli.default_spi_frequency = 11 * 1000 * 1000;
 
 	while ((ch = cli.getOpt(argc, argv, "R:")) != EOF) {

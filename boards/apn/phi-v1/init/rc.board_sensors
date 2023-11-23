@@ -5,7 +5,7 @@
 
 board_adc start
 
-lis3mdl -s start
+# lis3mdl -s start
 
 # Internal SPI
 # ms5611 -s start
@@ -28,6 +28,6 @@ lis3mdl -s start
 # fi
 
 # For Teal One airframe
-if param compare SYS_AUTOSTART 4250
-	mpu6500 -s -R 0 start
-fi
+# if param compare SYS_AUTOSTART 4250
+# 	mpu6500 -s -R 0 start
+# fi

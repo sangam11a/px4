@@ -8,3 +8,4 @@
 # then
 # 	frsky_telemetry start -d /dev/ttyS6 -t 15
 # fi
+mavlink start -d /dev/ttyACM0
