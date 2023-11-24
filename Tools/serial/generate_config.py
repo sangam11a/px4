@@ -62,11 +62,11 @@ serial_ports = {
 #         "index": 5,
 #         "default_baudrate": 57600,
 #         },
-    "URT6": {
-        "label": "UART 6",
-        "index": 6,
-        "default_baudrate": 57600,
-        },
+    # "URT6": {
+    #     "label": "UART 6",
+    #     "index": 6,
+    #     "default_baudrate": 57600,
+    #     },
 #     "URT7": {
 #         "label": "UART 7",
 #         "index": 7,
@@ -99,49 +99,49 @@ serial_ports = {
         "index": 103,
         "default_baudrate": 57600,
         },
-    "TEL4": {
-        "label": "TELEM/SERIAL 4",
-        "index": 104,
-        "default_baudrate": 57600,
-        },
+    # "TEL4": {
+    #     "label": "TELEM/SERIAL 4",
+    #     "index": 104,
+    #     "default_baudrate": 57600,
+    #     },
 
-    # GPS Ports
-    "GPS1": {
-        "label": "GPS 1",
-        "index": 201,
-        "default_baudrate": 0,
-        },
-    "GPS2": {
-        "label": "GPS 2",
-        "index": 202,
-        "default_baudrate": 0,
-        },
-    "GPS3": {
-        "label": "GPS 3",
-        "index": 203,
-        "default_baudrate": 0,
-        },
+    # # GPS Ports
+    # "GPS1": {
+    #     "label": "GPS 1",
+    #     "index": 201,
+    #     "default_baudrate": 0,
+    #     },
+    # "GPS2": {
+    #     "label": "GPS 2",
+    #     "index": 202,
+    #     "default_baudrate": 0,
+    #     },
+    # "GPS3": {
+    #     "label": "GPS 3",
+    #     "index": 203,
+    #     "default_baudrate": 0,
+    #     },
 
-    # RC Port
-    "RC": {
-        "label": "Radio Controller",
-        "index": 300,
-        "default_baudrate": 0,
-        },
+    # # RC Port
+    # "RC": {
+    #     "label": "Radio Controller",
+    #     "index": 300,
+    #     "default_baudrate": 0,
+    #     },
 
-    # WIFI Port (PixRacer)
-    "WIFI": {
-        "label": "Wifi Port",
-        "index": 301,
-        "default_baudrate": 1, # set default to an unusable value to detect that this serial port has not been configured
-        },
+    # # WIFI Port (PixRacer)
+    # "WIFI": {
+    #     "label": "Wifi Port",
+    #     "index": 301,
+    #     "default_baudrate": 1, # set default to an unusable value to detect that this serial port has not been configured
+    #     },
 
-    # EXT2
-    "EXT2": {
-        "label": "EXT2",
-        "index": 401,
-        "default_baudrate": 57600,
-        },
+    # # EXT2
+    # "EXT2": {
+    #     "label": "EXT2",
+    #     "index": 401,
+    #     "default_baudrate": 57600,
+    #     },
 
     }
 

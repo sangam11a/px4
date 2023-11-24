@@ -128,17 +128,17 @@
 #define HRT_TIMER                    3  /* use timer 3 for the HRT */
 #define HRT_TIMER_CHANNEL            4  /* use capture/compare channel 4 */
 
-#define HRT_PPM_CHANNEL              3  /* use capture/compare channel 3 */
-#define GPIO_PPM_IN                  (GPIO_ALT|GPIO_AF2|GPIO_PULLUP|GPIO_PORTD|GPIO_PIN11)
+// #define HRT_PPM_CHANNEL              3  /* use capture/compare channel 3 */
+// #define GPIO_PPM_IN                  (GPIO_ALT|GPIO_AF2|GPIO_PULLUP|GPIO_PORTD|GPIO_PIN11)
 
 /* RC Serial port */
 
-#define RC_SERIAL_PORT               "/dev/ttyS1"
+#define RC_SERIAL_PORT               "/dev/ttyS2"
 
 /* PWM input driver. Use FMU AUX5 pins attached to timer4 channel 2. */
-#define PWMIN_TIMER                  4
-#define PWMIN_TIMER_CHANNEL          2
-#define GPIO_PWM_IN                  GPIO_TIM4_CH2IN_2
+// #define PWMIN_TIMER                  4
+// #define PWMIN_TIMER_CHANNEL          2
+// #define GPIO_PWM_IN                  GPIO_TIM4_CH2IN_2
 
 /* For R12, this signal is active high. */
 // #define GPIO_SBUS_INV                (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_SET|GPIO_PORTC|GPIO_PIN13)

@@ -112,13 +112,13 @@ __EXPORT void board_peripheral_reset(int ms)
 	// setting power contorl pins
 	stm32_gpiowrite(GPIO_DCDC_IMU_EN, 1);	// enable IMU regulator
 	stm32_gpiowrite(GPIO_DCDC_MSN, 1); 	// enable MSN regulator
-	stm32_gpiowrite(GPIO_MSN_3V3_EN, 0);	//Disable MSN power (ssoc)
+	stm32_gpiowrite(GPIO_MSN_3V3_EN, 1);	//Disable MSN power (ssoc)
 	stm32_gpiowrite(GPIO_MSN_5V_EN, 1);	// enable IMU power
 	stm32_gpiowrite(GPIO_BURNER_EN, 0);	// Disable Burner enable
 	stm32_gpiowrite(GPIO_UNREG_EN, 0);	// Disable UNREG power line
 
 	// setting MSN control Pin
-	stm32_gpiowrite(GPIO_MSN1_EN, 0);	//Disable MSN activation
+	stm32_gpiowrite(GPIO_MSN1_EN, 1);	//Disable MSN activation
 
 	// setting flash control pins
 	stm32_gpiowrite(GPIO_MFM_RST, 1);	// disabling flash reset
@@ -158,9 +158,9 @@ __EXPORT void board_peripheral_reset(int ms)
 __EXPORT void board_on_reset(int status)
 {
 	// Configure the GPIO pins to outputs and keep them low.
-	for (int i = 0; i < DIRECT_PWM_OUTPUT_CHANNELS; ++i) {
-		px4_arch_configgpio(io_timer_channel_get_gpio_output(i));
-	}
+	// for (int i = 0; i < DIRECT_PWM_OUTPUT_CHANNELS; ++i) {
+	// 	px4_arch_configgpio(io_timer_channel_get_gpio_output(i));
+	// }
 
 	/*
 	 * On resets invoked from system (not boot) insure we establish a low
@@ -266,6 +266,7 @@ static struct spi_dev_s *spi4;
 __EXPORT int board_app_initialize(uintptr_t arg)
 {
 	px4_platform_init();
+	board_peripheral_reset(10);
 
 	// Configure the DMA allocator.
 	if (board_dma_alloc_init() < 0) {

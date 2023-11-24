@@ -61,7 +61,7 @@ static const px4_mtd_entry_t phi_mfm = {
 		{
 			.type = MTD_MAINSTORAGE,
 			.path = "/fs/mtd_mainstorage",
-			.nblocks= 204800		// 50MB in no of pages, each page having 256 bytes
+			.nblocks= 51200		// 12.5MB in no of pages, each page having 256 bytes
 		}
 	},
 };

@@ -39,7 +39,6 @@ static constexpr int16_t combine(uint8_t msb, uint8_t lsb)
 {
 	return (msb << 8u) | lsb;
 }
-
 MPU6500::MPU6500(const I2CSPIDriverConfig &config) :
 	SPI(config),
 	I2CSPIDriver(config),

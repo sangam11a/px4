@@ -31,13 +31,13 @@
  *
  ****************************************************************************/
 
+// #pragma once
 /**
  * @file SPI.cpp
  *
  * Base class for devices connected via SPI.
  *
  */
-
 #include "SPI.hpp"
 
 #if defined(CONFIG_SPI)

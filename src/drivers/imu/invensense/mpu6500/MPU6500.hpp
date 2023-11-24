@@ -45,7 +45,7 @@
 #include <drivers/drv_hrt.h>
 #include <lib/drivers/accelerometer/PX4Accelerometer.hpp>
 #include <lib/drivers/device/spi.h>
-#include <lib/drivers/device/nuttx/SPI.hpp>
+// #include <lib/drivers/device/nuttx/SPI.hpp>
 // #include <lib/drivers/device/nuttx/SPI.cpp>
 #include <lib/drivers/gyroscope/PX4Gyroscope.hpp>
 #include <lib/geo/geo.h>
