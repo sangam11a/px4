@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2013 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2018 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,76 +31,60 @@
  *
  ****************************************************************************/
 
-/**
- * @file led.c
- *
- * PX4FMU LED backend.
- */
+#pragma once
 
-#include <px4_platform_common/px4_config.h>
+#include <px4_platform_common/module.h>
+#include <px4_platform_common/module_params.h>
+#include <uORB/SubscriptionInterval.hpp>
+#include <uORB/topics/parameter_update.h>
 
-#include <stdbool.h>
+using namespace time_literals;
 
-#include "stm32.h"
-#include "board_config.h"
-
-#include <arch/board/board.h>
-
-/*
- * Ideally we'd be able to get these from arm_internal.h,
- * but since we want to be able to disable the NuttX use
- * of leds for system indication at will and there is no
- * separate switch, we need to build independent of the
- * CONFIG_ARCH_LEDS configuration switch.
- */
-__BEGIN_DECLS
-extern void led_init(void);
-extern void led_on(int led);
-extern void led_off(int led);
-extern void led_toggle(int led);
-__END_DECLS
+extern "C" __EXPORT int mt25ql_flash_main(int argc, char *argv[]);
 
 
+class Mt25qlFlash: public ModuleBase<Mt25qlFlash>, public ModuleParams
+{
+public:
+	Mt25qlFlash(int example_param, bool example_flag);
 
-static uint32_t g_ledmap[] = {
-	GPIO_LED_BLUE,    // Indexed by LED_BLUE
-	GPIO_LED_RED,     // Indexed by LED_RED, LED_AMBER
-	GPIO_LED_SAFETY,  // Indexed by LED_SAFETY
-	GPIO_LED_GREEN,   // Indexed by LED_GREEN
+	virtual ~Mt25qlFlash() = default;
+
+	/** @see ModuleBase */
+	static int task_spawn(int argc, char *argv[]);
+
+	/** @see ModuleBase */
+	static Mt25qlFlash *instantiate(int argc, char *argv[]);
+
+	/** @see ModuleBase */
+	static int custom_command(int argc, char *argv[]);
+
+	/** @see ModuleBase */
+	static int print_usage(const char *reason = nullptr);
+
+	/** @see ModuleBase::run() */
+	void run() override;
+
+	/** @see ModuleBase::print_status() */
+	int print_status() override;
+
+private:
+
+	/**
+	 * Check for parameter changes and update them if needed.
+	 * @param parameter_update_sub uorb subscription to parameter_update
+	 * @param force for a parameter update
+	 */
+	void parameters_update(bool force = false);
+
+
+	DEFINE_PARAMETERS(
+		// (ParamInt<px4::params::SYS_AUTOSTART>) _param_sys_autostart,   /**< example parameter */
+		// (ParamInt<px4::params::SYS_AUTOCONFIG>) _param_sys_autoconfig  /**< another parameter */
+	)
+
+	// Subscriptions
+	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s};
+
 };
 
-__EXPORT void led_init(void)
-{
-	/* Configure LED GPIOs for output */
-	for (size_t l = 0; l < (sizeof(g_ledmap) / sizeof(g_ledmap[0])); l++) {
-		stm32_configgpio(g_ledmap[l]);
-	}
-}
-
-static void phy_set_led(int led, bool state)
-{
-	/* Pull Down to switch on */
-	stm32_gpiowrite(g_ledmap[led], !state);
-}
-
-static bool phy_get_led(int led)
-{
-
-	return !stm32_gpioread(g_ledmap[led]);
-}
-
-__EXPORT void led_on(int led)
-{
-	phy_set_led(led, true);
-}
-
-__EXPORT void led_off(int led)
-{
-	phy_set_led(led, false);
-}
-
-__EXPORT void led_toggle(int led)
-{
-
-	phy_set_led(led, !phy_get_led(led));
-}

@@ -40,7 +40,7 @@ static const px4_mft_device_t spi3 = {             // MT25QL on FMUM 1Gb 2048 X 
 };
 static const px4_mft_device_t spi4 = {             // MT25QL on FMUM 1Gb 2048 X 64K
 	.bus_type = px4_mft_device_t::SPI,
-	.devid    = SPIDEV_FLASH(1)
+	.devid    = SPIDEV_FLASH(0)
 };
 
 static const px4_mtd_entry_t phi_mfm = {
@@ -55,7 +55,7 @@ static const px4_mtd_entry_t phi_mfm = {
 		{
 			.type = MTD_WAYPOINTS,
 			.path = "/fs/mtd_waypoints",
-			.nblocks = 32		// represnted with 256 bytes per block
+			.nblocks = 32		// represented with 256 bytes per block
 
 		},
 		{
@@ -71,16 +71,17 @@ static const px4_mtd_entry_t phi_sfm = {
 	.npart = 2,
 	.partd = {
 		{
-			.type = MTD_MFT_VER,
-			.path = "/fs/mtd_mft_ver",
-			.nblocks = 248
-		},
-		{
 			.type = MTD_NET,
 			.path = "/fs/mtd_net",
-			.nblocks = 8 // 256 = 32 * 8
+			.nblocks = 32
 
+		},
+		{
+			.type = MTD_MFT_VER,
+			.path = "/fs/mtd_mft_ver",
+			.nblocks = 240
 		}
+
 	},
 };
 

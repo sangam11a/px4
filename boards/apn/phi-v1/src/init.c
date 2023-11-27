@@ -128,7 +128,7 @@ __EXPORT void board_peripheral_reset(int ms)
 	stm32_gpiowrite(GPIO_SFM_RST, 1);	// disabling flash reset
 	stm32_gpiowrite(GPIO_SFM_HOLD, 1);	// disabling flash hold
 	stm32_gpiowrite(GPIO_SFM_WP, 1);	// disabling hadware WP of flash
-	stm32_gpiowrite(GPIO_SFM_MODE, 1);
+	stm32_gpiowrite(GPIO_SFM_MODE, 0);
 	stm32_gpiowrite(GPIO_MUX_EN, 0);
 	// bool last = stm32_gpioread(GPIO_SPEKTRUM_PWR_EN);
 	// // Keep Spektum on to discharge rail.
@@ -287,6 +287,7 @@ __EXPORT int board_app_initialize(uintptr_t arg)
 	if (!spi1) {
 		syslog(LOG_ERR, "[boot] FAILED to initialize SPI port 1\n");
 	} else {
+		syslog(LOG_INFO, "[boot] Initialized SPI port 1\n");
 		// Default SPI1 to 1MHz, IMUs
 		SPI_SETFREQUENCY(spi1, 10000000);
 		SPI_SETBITS(spi1, 8);
@@ -299,7 +300,7 @@ __EXPORT int board_app_initialize(uintptr_t arg)
 	if (!spi2) {
 		syslog(LOG_ERR, "[boot] FAILED to initialize SPI port 2\n");
 	} else {
-
+		syslog(LOG_INFO, "[boot] Initialized SPI port 2\n");
 		// Default SPI2 to 1MHz, ADC
 		SPI_SETFREQUENCY(spi2, 10000000);
 		SPI_SETBITS(spi2, 8);
@@ -314,6 +315,7 @@ __EXPORT int board_app_initialize(uintptr_t arg)
 	if(!spi3) {
 		syslog(LOG_ERR, "[boot] FAILED to initialize SPI port 3\n");
 	} else  {
+		syslog(LOG_INFO, "[boot] Initialized SPI port 3\n");
 		/**
 		 * Default SPI3 to 12MHz and de-assert the known chip selects.
 		 * MT25QL has max SPI clock speed of 133MHz.
@@ -330,6 +332,8 @@ __EXPORT int board_app_initialize(uintptr_t arg)
 		syslog(LOG_ERR, "[boot] FAILED to initialize SPI port 4\n");
 
 	} else {
+
+		syslog(LOG_INFO, "[boot] Initialized SPI port 4\n");
 		// Default SPI4 to 20 MHz
 		SPI_SETFREQUENCY(spi4, 20 * 1000 * 1000);
 		SPI_SETBITS(spi4, 8);

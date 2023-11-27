@@ -48,7 +48,7 @@ constexpr px4_spi_bus_t px4_spi_buses[SPI_BUS_MAX_BUS_ITEMS] = {
 		initSPIDevice(SPIDEV_FLASH(0), SPI::CS{GPIO::PortD, GPIO::Pin0}), //Main FM, MT25QL
 	}),
 	initSPIBus(SPI::Bus::SPI4, {
-		initSPIDevice(SPIDEV_FLASH(1), SPI::CS{GPIO::PortA, GPIO::Pin2}), //Shared FM, MT25QL
+		initSPIDevice(SPIDEV_FLASH(0), SPI::CS{GPIO::PortA, GPIO::Pin2}), //Shared FM, MT25QL
 	}),
 };
 
