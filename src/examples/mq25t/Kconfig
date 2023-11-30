@@ -1,0 +1,5 @@
+menuconfig EXAMPLES_MQ25T
+	bool "MQ25T"
+	default n
+	---help---
+		Enable support for MQ25T

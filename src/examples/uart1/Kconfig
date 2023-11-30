@@ -1,0 +1,5 @@
+menuconfig EXAMPLES_UART1
+	bool "uart1"
+	default n
+	---help---
+		Enable support for uart1

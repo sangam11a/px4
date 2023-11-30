@@ -31,8 +31,8 @@ int px4_testing_main(int argc, char *argv[])
 // 	orb_set_interval(sensor_sub_fd,200);
 // 	struct satelliteinfo sat;
 // 	memset(&sat,0,sizeof(sat));
-// 	struct vehicle_attitude_s att;
-// 	memset(&att,0,sizeof(att));
+	struct vehicle_attitude_s att;
+	memset(&att,0,sizeof(att));
 // 	// orb_advert_t att_pub = orb_advertise(ORB_ID(vehicle_attitude));
 // 	px4_pollfd_struct_t fds[] = {{
 // 		.fd = sensor_sub_fd,
@@ -65,8 +65,8 @@ int px4_testing_main(int argc, char *argv[])
 // 			}
 // 		}
 // 	}
-	ulog_t *ulog =ulog_create("first","/tmp/first.txt");
-	ulog_write(ulog,"sjdlfjsldjflsdj");
-	ulog_destroy(ulog);
+	// ulog_t *ulog =ulog_create("first","/tmp/first.txt");
+	// ulog_write(ulog,"sjdlfjsldjflsdj");
+	// ulog_destroy(ulog);
 	return 0;
 }

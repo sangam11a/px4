@@ -315,6 +315,10 @@ int Commander::custom_command(int argc, char *argv[])
 		return 0;
 	}
 
+	if (!strcmp(argv[0], "test")){
+		PX4_INFO("testing done");
+	}
+
 	if (!strcmp(argv[0], "disarm")) {
 		float param2 = 0.f;
 
