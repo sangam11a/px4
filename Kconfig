@@ -7,6 +7,9 @@ comment "Vendor: $(VENDOR)"
 comment "Model: $(MODEL)"
 comment "Label: $(LABEL)"
 
+
+
+
 menu "Toolchain"
     choice
         prompt "Platform"
@@ -207,5 +210,9 @@ source "platforms/common/Kconfig"
 endmenu
 
 menu "user"
-source "boards/apn/phi-v1/user/Kconfig"
+source "boards/apn/phi-v1/src/user/Kconfig"
 endmenu
+
+# menu "user"
+# source "boards/apn/phi/src/user/Kconfig"
+# endmenu

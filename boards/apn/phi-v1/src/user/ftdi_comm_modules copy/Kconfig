@@ -1,0 +1,5 @@
+menuconfig USER__FTDI_COMM_MODULES
+	bool "ftdi_communication"
+	default n
+	---help---
+		Enable support for ftdi_communication

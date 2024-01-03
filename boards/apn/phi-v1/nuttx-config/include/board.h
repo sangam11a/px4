@@ -214,8 +214,8 @@
 #define GPIO_USART6_TX	GPIO_USART6_TX_1
 
 
-// #define GPIO_UART8_RX	GPIO_UART8_RX	//ttyS4
-// #define GPIO_UART8_TX	GPIO_UART8_TX
+#define GPIO_UART8_RX	GPIO_UART8_RX_0	    //ttyS4
+#define GPIO_UART8_TX	GPIO_UART8_TX_0
 /* UART8 has no alternate pin config */
 
 

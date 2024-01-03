@@ -1,0 +1,5 @@
+menuconfig USER__CUSTOM_UART
+	bool "custom uart"
+	default n
+	---help---
+		Enable support for custom uart

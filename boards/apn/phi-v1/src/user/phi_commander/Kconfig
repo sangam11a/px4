@@ -1,0 +1,5 @@
+menuconfig USER_HELLO
+	bool "HELLO"
+	default n
+	---help---
+		Enable support for HELLO

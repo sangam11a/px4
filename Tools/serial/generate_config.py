@@ -230,7 +230,10 @@ for key in serial_ports:
         raise Exception("Serial tag {:} is too long (max length=4)".format(key))
 
 serial_devices = []
+# print
 for tag, device in board_ports:
+    print(tag)
+    print(device)
     if tag not in serial_ports:
         raise Exception("Unknown serial port {:}. "
             "You might have to add it to serial_ports in\n {:}".format(tag,
