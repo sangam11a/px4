@@ -195,7 +195,7 @@ int HelloModule::custom_command(int argc, char *argv[]){
 	 int  j=0;
 	  char* c;
     //UART open
-    int uart = uart_init("/dev/ttyS3"); //FTDI module commttyS2
+    int uart = uart_init("/dev/ttyS3"); //FTDI module comm ttyS2
 
     PX4_INFO("uart first :%i ",uart);
     if(false == uart)return -1;
